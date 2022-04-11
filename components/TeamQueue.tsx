@@ -1,28 +1,41 @@
+import { useState } from 'react';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
-import { styled } from '@mui/material/styles';
+import TeamRow from './TeamRow';
 //import styles from './TeamQueue.module.scss';
 
 type Props = {
   teamIds: Array<string>;
 };
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
-
 const TeamQueue: React.FC<Props> = ({ teamIds }) => {
+
+  const [inTeam, setInTeam] = useState<boolean>(false);
 
   return (
     <Box sx={{ width: '100' }}>
+      <Grid container spacing={2} columns={12}>
+          <Grid item xs={4}>
+             Team Name
+          </Grid>
+          <Grid item xs={4}>
+              # Players
+          </Grid>
+          <Grid item xs={4}>
+              Join Team
+          </Grid>
+      </Grid>
       <Stack spacing={2}>
-        {teamIds.map((teamId) => {
-          return <Item key={teamId}>{teamId}</Item>
+        {teamIds.map((teamId: string) => {
+          return (
+            <TeamRow 
+              key={teamId}
+              teamId={teamId}
+              inTeam={inTeam}
+              handleInTeamChange={setInTeam}
+            />
+          )
         })}
       </Stack>
     </Box>
