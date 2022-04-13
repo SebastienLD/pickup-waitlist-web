@@ -6,16 +6,27 @@ import TextField from '@mui/material/TextField';
 //import styles from './CallNext.module.scss';
 
 type Props = {
-  addTeam: (newTeam: string) => void;
+  addTeamId: (newTeam: string) => void;
+  BASE_API: string;
 };
 
-const CallNext: React.FC<Props> = ({ addTeam }) => {
+const CallNext: React.FC<Props> = ({ addTeamId, BASE_API }) => {
   
   const [teamName, setTeamName] = useState("");
-  const handleButtonPress = (teamName: string) => {
+  const handleButtonPress = async (teamName: string) => {
+
     if (teamName.trim() !== "") {
-      addTeam(teamName);
-      setTeamName("");
+      
+      setTeamName(""); 
+      const res = await fetch(BASE_API + "/team/create", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"teamName": teamName, "created": Date.now()})
+      });
+      const data = await res.json();
+      addTeamId(data.teamId);
     } else {
       alert("You must enter a valid team name!");
     }
