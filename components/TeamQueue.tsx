@@ -7,20 +7,24 @@ import TeamRow from './TeamRow';
 
 type Props = {
   teamIds: Array<string>;
+  BASE_API: string;
 };
 
-const TeamQueue: React.FC<Props> = ({ teamIds }) => {
+const TeamQueue: React.FC<Props> = ({ teamIds, BASE_API }) => {
 
   const [inTeam, setInTeam] = useState<boolean>(false);
 
   return (
     <Box sx={{ width: '100' }}>
-      <Grid container spacing={2} columns={12}>
+      <Grid container spacing={2} columns={16}>
           <Grid item xs={4}>
-             Team Name
+            Name
           </Grid>
           <Grid item xs={4}>
               # Players
+          </Grid>
+          <Grid item xs={4}>
+              Time
           </Grid>
           <Grid item xs={4}>
               Join Team
@@ -34,6 +38,7 @@ const TeamQueue: React.FC<Props> = ({ teamIds }) => {
               teamId={teamId}
               inTeam={inTeam}
               handleInTeamChange={setInTeam}
+              BASE_API={BASE_API}
             />
           )
         })}
