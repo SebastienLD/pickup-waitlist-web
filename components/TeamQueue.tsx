@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -8,11 +8,30 @@ import TeamRow from './TeamRow';
 type Props = {
   teamIds: Array<string>;
   BASE_API: string;
+  playerId: string;
 };
 
-const TeamQueue: React.FC<Props> = ({ teamIds, BASE_API }) => {
+const TeamQueue: React.FC<Props> = ({ teamIds, BASE_API, playerId }) => {
 
-  const [inTeam, setInTeam] = useState<boolean>(false);
+  const [playerTeamId, setPlayerTeamId] = useState<string>("");
+
+  const init = async () => {
+    if (playerId !== "") {
+      const res = await fetch(BASE_API + "/player/team", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"playerId": playerId})
+      });
+      const data = await res.json();
+      setPlayerTeamId(data.teamId);
+    }  
+  }
+
+  useEffect(() => {
+    init();
+  }, [playerId]);
 
   return (
     <Box sx={{ width: '100' }}>
@@ -36,9 +55,10 @@ const TeamQueue: React.FC<Props> = ({ teamIds, BASE_API }) => {
             <TeamRow 
               key={teamId}
               teamId={teamId}
-              inTeam={inTeam}
-              handleInTeamChange={setInTeam}
               BASE_API={BASE_API}
+              playerId={playerId}
+              playerTeamId={playerTeamId}
+              setPlayerTeamId={setPlayerTeamId}
             />
           )
         })}

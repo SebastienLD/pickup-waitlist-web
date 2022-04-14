@@ -23,7 +23,7 @@ const CallNext: React.FC<Props> = ({ addTeamId, BASE_API }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({"teamName": teamName, "created": Date.now()})
+        body: JSON.stringify({"teamName": teamName, "created": (Date.now()/1000)})
       });
       const data = await res.json();
       addTeamId(data.teamId);
@@ -38,7 +38,7 @@ const CallNext: React.FC<Props> = ({ addTeamId, BASE_API }) => {
         variant='outlined'
         size="small"
         value={teamName}
-        placeholder="Enter Team Name"
+        placeholder="Enter New Team Name"
         onChange={(event) => setTeamName(event.target.value)}
       />
       <Button 
