@@ -7,9 +7,10 @@ import { styled } from '@mui/material/styles';
 
 type Props = {
   teamId: string;
-  inTeam: boolean;
-  handleInTeamChange: (inTeam: boolean) => void;
+  playerTeamId: string;
+  setPlayerTeamId: (playerId: string) => void;
   BASE_API: string;
+  playerId: string;
 };
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -21,7 +22,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const TeamRow: React.FC<Props> = ({ teamId, inTeam, handleInTeamChange, BASE_API }) => {
+const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_API, playerId }) => {
 
   interface Team {
     name: string;
@@ -29,19 +30,46 @@ const TeamRow: React.FC<Props> = ({ teamId, inTeam, handleInTeamChange, BASE_API
   }
 
   const [numPlayers, setNumPlayers] = useState<number>(0);
-  const [inThisTeam, setInThisTeam] = useState<boolean>(false);
+  const [inThisTeam, setInThisTeam] = useState<boolean>(teamId === playerTeamId);
   const [teamName, setTeamName] = useState<string>("");
   const [createdEpoch, setCreatedEpoch] = useState<Date>(new Date(1649613004));
-  const handleJoinTeam = () => {
-    setNumPlayers(numPlayers+1);
-    handleInTeamChange(true);
-    setInThisTeam(true);
 
+  const postJoinTeam = async () => {
+    const res = await fetch(BASE_API + "/team/join", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({"teamId": teamId, "playerId": playerId})
+    });
+  }
+
+  const postLeaveTeam = async () => {
+    const res = await fetch(BASE_API + "/team/leave", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({"playerId": playerId})
+    });
+  }
+
+  const handleJoinTeam = () => {
+    if (playerId.trim() !== "") {
+      setNumPlayers(numPlayers+1);
+      setPlayerTeamId(teamId);
+      setInThisTeam(true);
+      postJoinTeam();
+    } else {
+      alert("Must add name before joining team");
+    }
+   
   }
   const handleLeaveTeam = () => {
     setNumPlayers(numPlayers-1);
-    handleInTeamChange(false);
+    setPlayerTeamId("");
     setInThisTeam(false);
+    postLeaveTeam();
   }
 
   const init = async () => {
@@ -59,6 +87,7 @@ const TeamRow: React.FC<Props> = ({ teamId, inTeam, handleInTeamChange, BASE_API
     const miliseconds = createdNum * 1000;
     const dateCreated = new Date(miliseconds)
     setCreatedEpoch(dateCreated);
+    setNumPlayers(data.members);
   }
 
   useEffect(() => {
@@ -112,12 +141,12 @@ const TeamRow: React.FC<Props> = ({ teamId, inTeam, handleInTeamChange, BASE_API
             {numPlayers}
           </Grid>
           <Grid item xs={4}>
-            {createdEpoch.getHours()}:{createdEpoch.getMinutes()}
+            {createdEpoch.getHours() % 12}:{String(createdEpoch.getMinutes()).padStart(2, '0')}
           </Grid>
           <Grid item xs={4}>
             {(inThisTeam) ?
               leaveButton() :
-              ((numPlayers < 5 && !inTeam) ?
+              ((numPlayers < 5 && (playerTeamId === "")) ?
                 joinButton() : cannotJoinButton())
             }
           </Grid>
