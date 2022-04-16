@@ -25,7 +25,7 @@ const TeamQueue: React.FC<Props> = ({ teamIds, BASE_API, playerId }) => {
         body: JSON.stringify({"playerId": playerId})
       });
       const data = await res.json();
-      setPlayerTeamId(data.teamId);
+      setPlayerTeamId((data.teamId !== "None") ? data.teamId : "");
     }  
   }
 
@@ -35,18 +35,21 @@ const TeamQueue: React.FC<Props> = ({ teamIds, BASE_API, playerId }) => {
 
   return (
     <Box sx={{ width: '100' }}>
-      <Grid container spacing={2} columns={16}>
-          <Grid item xs={4}>
+      <Grid container spacing={2} columns={15}>
+          <Grid item xs={3}>
             Name
           </Grid>
-          <Grid item xs={4}>
-              # Players
+          <Grid item xs={3}>
+            Players
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
               Time
           </Grid>
-          <Grid item xs={4}>
-              Join Team
+          <Grid item xs={3}>
+              Court
+          </Grid>
+          <Grid item xs={3}>
+              Join
           </Grid>
       </Grid>
       <Stack spacing={2}>

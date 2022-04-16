@@ -2,6 +2,16 @@
   padding: 0 2rem;
 }
 
+.mb1 {
+  margin-bottom: 1em;
+}
+
+.waitlist {
+  margin-top: .5em;
+  margin-bottom: .5em;
+  font-size: 18px;
+}
+
 .main {
   flex: 1;
   display: flex;

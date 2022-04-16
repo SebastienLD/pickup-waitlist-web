@@ -33,6 +33,7 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
   const [inThisTeam, setInThisTeam] = useState<boolean>(teamId === playerTeamId);
   const [teamName, setTeamName] = useState<string>("");
   const [createdEpoch, setCreatedEpoch] = useState<Date>(new Date(1649613004));
+  const [court, setCourt] = useState(0);
 
   const postJoinTeam = async () => {
     const res = await fetch(BASE_API + "/team/join", {
@@ -88,6 +89,7 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
     const dateCreated = new Date(miliseconds)
     setCreatedEpoch(dateCreated);
     setNumPlayers(data.members);
+    setCourt(data.court);
   }
 
   useEffect(() => {
@@ -133,17 +135,20 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
 
   return (
     <Item>
-      <Grid container spacing={2} columns={16}>
-          <Grid item xs={4}>
+      <Grid container spacing={2} columns={15}>
+          <Grid item xs={3}>
             {teamName}
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             {numPlayers}
           </Grid>
-          <Grid item xs={4}>
-            {createdEpoch.getHours() % 12}:{String(createdEpoch.getMinutes()).padStart(2, '0')}
+          <Grid item xs={3}>
+            {(createdEpoch.getHours() === 0) ? 12 : createdEpoch.getHours() % 12}:{String(createdEpoch.getMinutes()).padStart(2, '0')}{(createdEpoch.getHours() < 12) ? "am" : "pm"}
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
+            {(court > 0) ? court : "None"}
+          </Grid>
+          <Grid item xs={3}>
             {(inThisTeam) ?
               leaveButton() :
               ((numPlayers < 5 && (playerTeamId === "")) ?

@@ -7,6 +7,7 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import GetNameModal from '../components/GetNameModal';
+import Court from '../components/Courts';
 import Cookie from "js-cookie";
 import cookie from "cookie";
 
@@ -24,6 +25,26 @@ const Home: NextPage = ({ initialPlayerName, initialPlayerId }) => {
   const [playerName, setPlayerName] = useState<string>(initialPlayerName);
   const [playerId, setPlayerId] = useState<string>(initialPlayerId);
   const [nameModalOpen, setNameModalOpen] = useState<boolean>(true);
+  const [courtOneTeams, setCourtOneTeams] = useState<Array<string>>(new Array<string>());
+  const [courtTwoTeams, setCourtTwoTeams] = useState<Array<string>>(new Array<string>());
+  const [courtThreeTeams, setCourtThreeTeams] = useState<Array<string>>(new Array<string>());
+
+  const addTeamToCourt = (court: number, teamId: string) => {
+    let courtTeams: Array<string> = [];
+    if (court === 1) {
+      courtTeams = [...courtOneTeams];
+      courtTeams.push(teamId);
+      setCourtOneTeams(courtTeams);
+    } else if (court === 2) {
+      courtTeams = [...courtTwoTeams];
+      courtTeams.push(teamId);
+      setCourtTwoTeams(courtTeams);
+    } else if (court === 3) {
+      courtTeams = [...courtThreeTeams];
+      courtTeams.push(teamId);
+      setCourtThreeTeams(courtTeams);
+    }
+  }
 
   const addPlayer = async (name: string) => {
     const res = await fetch(BASE_API + "/player/create", {
@@ -85,14 +106,35 @@ const Home: NextPage = ({ initialPlayerName, initialPlayerId }) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.waitlist}>WAITLIST --- HI: {playerName}</div>
-      {<GetNameModal 
-        open={nameModalOpen}
-        handleOpenChange={setNameModalOpen}
-        handleChangeName={addPlayer}
-      />}
-      <CallNext addTeamId={addTeamId} BASE_API={BASE_API}/>
-      <TeamQueue teamIds={teamIds} BASE_API={BASE_API} playerId={playerId}/>
+      <div className={styles.waitlist}>Hi, {playerName}!</div>
+      <div className={styles.mb1}>
+         {<GetNameModal
+            open={nameModalOpen}
+            handleOpenChange={setNameModalOpen}
+            handleChangeName={addPlayer}
+          />}
+      </div>
+      <div className={styles.mb1}>
+        <CallNext addTeamId={addTeamId} BASE_API={BASE_API}/>
+      </div>
+      <div className={styles.mb1}>
+         <Court 
+            teamIds={teamIds}
+            BASE_API={BASE_API}
+            courtOneTeams={courtOneTeams}
+            courtTwoTeams={courtTwoTeams}
+            courtThreeTeams={courtThreeTeams}
+            addTeamToCourt={addTeamToCourt}
+          />
+      </div>
+      <div className={styles.mb1}>
+        <TeamQueue 
+          teamIds={teamIds}
+          BASE_API={BASE_API}
+          playerId={playerId}
+        />
+      </div>
+      
     </div>
   )
 };
