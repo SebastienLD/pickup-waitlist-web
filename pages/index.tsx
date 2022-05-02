@@ -7,46 +7,41 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import GetNameModal from '../components/GetNameModal';
-import Court from '../components/Courts';
+import Courts from '../components/Courts';
 import Cookie from "js-cookie";
 import cookie from "cookie";
-
-const BASE_API = "http://localhost:5000";
+import EditIcon from '@mui/icons-material/Edit';
+import { BASE_API, Team, Player, Item, getWaitTime } from '../components/constants';
 
 const parseCookies = (req: any) => {
   return cookie.parse(req ? req.headers.cookie || "" : document.cookie);
 }
 
-const Home: NextPage = ({ initialPlayerName, initialPlayerId }) => {
+const Home: NextPage = ({ initialPlayerId, initialCourtView }) => {
 
-  const initArray: Array<string> = [];
-  const [teamIds, setTeamIds] = useState(initArray);
-  const [inTeam, setInTeam] = useState<boolean>(false);
-  const [playerName, setPlayerName] = useState<string>(initialPlayerName);
-  const [playerId, setPlayerId] = useState<string>(initialPlayerId);
-  const [nameModalOpen, setNameModalOpen] = useState<boolean>(true);
-  const [courtOneTeams, setCourtOneTeams] = useState<Array<string>>(new Array<string>());
-  const [courtTwoTeams, setCourtTwoTeams] = useState<Array<string>>(new Array<string>());
-  const [courtThreeTeams, setCourtThreeTeams] = useState<Array<string>>(new Array<string>());
+  
+  const [nameModalOpen, setNameModalOpen] = useState<boolean>(false);
+  const [player, setPlayer] = useState<Player | null>(null);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [courtView, setCourtView] = useState((initialCourtView !== undefined) ? initialCourtView : 0);
 
-  const addTeamToCourt = (court: number, teamId: string) => {
-    let courtTeams: Array<string> = [];
-    if (court === 1) {
-      courtTeams = [...courtOneTeams];
-      courtTeams.push(teamId);
-      setCourtOneTeams(courtTeams);
-    } else if (court === 2) {
-      courtTeams = [...courtTwoTeams];
-      courtTeams.push(teamId);
-      setCourtTwoTeams(courtTeams);
-    } else if (court === 3) {
-      courtTeams = [...courtThreeTeams];
-      courtTeams.push(teamId);
-      setCourtThreeTeams(courtTeams);
-    }
-  }
-
-  const addPlayer = async (name: string) => {
+  // const addTeamToCourt = (court: number, teamId: string) => {
+  //   let courtTeams: Array<string> = [];
+  //   if (court === 1) {
+  //     courtTeams = [...courtOneTeams];
+  //     courtTeams.push(teamId);
+  //     setCourtOneTeams(courtTeams);
+  //   } else if (court === 2) {
+  //     courtTeams = [...courtTwoTeams];
+  //     courtTeams.push(teamId);
+  //     setCourtTwoTeams(courtTeams);
+  //   } else if (court === 3) {
+  //     courtTeams = [...courtThreeTeams];
+  //     courtTeams.push(teamId);
+  //     setCourtThreeTeams(courtTeams);
+  //   }
+  // }
+  const createPlayer = async (name: string) => {
     const res = await fetch(BASE_API + "/player/create", {
       method: 'POST',
       headers: {
@@ -56,83 +51,90 @@ const Home: NextPage = ({ initialPlayerName, initialPlayerId }) => {
     });
 
     const data = await res.json();
-    setPlayerName(name);
-    setPlayerId(data.playerId);
+    setPlayer({
+      "playerId": data.playerId,
+      "name": name,
+      "created": data.created,
+    })
   };
 
-  const addTeamId = (newTeamId: string) => {
-    const currTeamIds = [...teamIds];
-    if (!currTeamIds.includes(newTeamId))
-    currTeamIds.push(newTeamId);
-    setTeamIds(currTeamIds);
+  const addTeam = (newTeamId: string, teamCourt: number) => {
+    // const currTeamIds = [...teamIds];
+    // const currTeamCourts = [...teamCourts];
+    // if (!currTeamIds.includes(newTeamId)) {
+    //   currTeamIds.push(newTeamId);
+    //   setTeamIds(currTeamIds);
+    //   currTeamCourts.push({id: newTeamId, court: teamCourt});
+    //   setTeamCourts(currTeamCourts);
+    // }
   };
-
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    paddingLeft: theme.spacing(2),
-    // textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
-
-  interface TeamId {
-    id: string;
-  }
-
   const init = async () => {
-    const res = await fetch(BASE_API + "/team/list", {
+    const res = await fetch(BASE_API + "/team/all/get", {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     });
     const data = await res.json();
-    const teamIds: Array<string> = [];
-    data.teamIds.map((teamId: TeamId) => {
-      console.log(teamId.id);
-      teamIds.push(teamId.id);
+    const teams: Team[] = [];
+    data.teamArray.map((team: Team) => {
+      teams.push(team);
     });
-    setTeamIds(teamIds);
+    setTeams(teams);
+
+    if (player === null) {
+      const playerRes = await fetch(BASE_API + "/player/get", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"playerId": initialPlayerId})
+      });
+      const playerData = await playerRes.json();
+      if (playerData.teamId === "None") {
+        playerData.teamId = undefined;
+      }
+      setPlayer(playerData);
+    }
   }
 
   useEffect(() => {
     init();
-    Cookie.set("playerName", playerName);
-    Cookie.set("playerId", playerId);
-  }, [playerName, playerId]);
+    if (player !== null) {
+      Cookie.set("playerId", player.playerId);
+      Cookie.set("courtView", courtView)
+    }
+  }, [player?.playerId, courtView]);
 
 
 
   return (
     <div className={styles.container}>
-      <div className={styles.waitlist}>Hi, {playerName}!</div>
+      <Item>
+         <div className={styles.waitlist}>
+           {(player !== null) ? "Hi, " + player.name : ""} <EditIcon fontSize="small" onClick={() => setNameModalOpen(true)}/>
+           {` Wait Time ~ ${getWaitTime(teams)} minutes`}
+          </div>
+      </Item>
+      
+      {(player === null || nameModalOpen) && <GetNameModal
+          open={nameModalOpen}
+          handleOpenChange={setNameModalOpen}
+          handleChangeName={createPlayer}
+        />}
+    
       <div className={styles.mb1}>
-         {<GetNameModal
-            open={nameModalOpen}
-            handleOpenChange={setNameModalOpen}
-            handleChangeName={addPlayer}
-          />}
-      </div>
-      <div className={styles.mb1}>
-        <CallNext addTeamId={addTeamId} BASE_API={BASE_API}/>
-      </div>
-      <div className={styles.mb1}>
-         <Court 
-            teamIds={teamIds}
-            BASE_API={BASE_API}
-            courtOneTeams={courtOneTeams}
-            courtTwoTeams={courtTwoTeams}
-            courtThreeTeams={courtThreeTeams}
-            addTeamToCourt={addTeamToCourt}
+        {(player !== null) &&
+         <Courts
+            courtView={courtView}
+            setCourtView={setCourtView}
+            teams={teams}
+            setTeams={setTeams}
+            player={player}
+            setPlayer={setPlayer}
+            addTeam={addTeam}
           />
-      </div>
-      <div className={styles.mb1}>
-        <TeamQueue 
-          teamIds={teamIds}
-          BASE_API={BASE_API}
-          playerId={playerId}
-        />
+        }
       </div>
       
     </div>
@@ -142,8 +144,8 @@ const Home: NextPage = ({ initialPlayerName, initialPlayerId }) => {
 Home.getInitialProps = ({ req }) => {
   const cookies = parseCookies(req);
   return {
-    initialPlayerName: cookies.playerName,
-    initialPlayerId: cookies.playerId
+    initialPlayerId: cookies.playerId,
+    initialCourtView: Number(cookies.courtView)
   };
 };
 

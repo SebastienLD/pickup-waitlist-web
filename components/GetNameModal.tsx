@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 //import styles from './GetNameModal.module.scss';
+import { modalStyle } from './constants';
 
 type Props = {
   open: boolean;
@@ -18,11 +19,16 @@ const GetNameModal: React.FC<Props> = ({ open, handleOpenChange, handleChangeNam
   const handleSubmit = () => {
     handleChangeName(playerName);
     setPlayerName("");
+    handleOpenChange(false);
   }
 
   return (
    
-      <Box>
+    <Modal
+      open={open}
+      onClose={() => handleOpenChange(false)}  
+    >
+      <Box sx={modalStyle}>
         <TextField 
             variant='outlined'
             size="small"
@@ -35,7 +41,7 @@ const GetNameModal: React.FC<Props> = ({ open, handleOpenChange, handleChangeNam
             onClick={handleSubmit}  
         >Submit</Button>
       </Box>
-  
+    </Modal>
   )
 };
 
