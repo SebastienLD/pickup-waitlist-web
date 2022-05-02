@@ -4,13 +4,15 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 //import styles from './TeamRow.module.scss';
+import { BASE_API, Team, Player } from './constants';
 
 type Props = {
+  team: Team;
+  setTeam: (team: Team) => void;
   teamId: string;
-  playerTeamId: string;
+  player: Player;
   setPlayerTeamId: (playerId: string) => void;
-  BASE_API: string;
-  playerId: string;
+  initCourt: number;
 };
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -22,18 +24,13 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_API, playerId }) => {
+const TeamRow: React.FC<Props> = ({ team, setTeam, teamId, player, setPlayerTeamId, initCourt }) => {
 
-  interface Team {
-    name: string;
-    numPlayers: number;
-  }
-
-  const [numPlayers, setNumPlayers] = useState<number>(0);
-  const [inThisTeam, setInThisTeam] = useState<boolean>(teamId === playerTeamId);
-  const [teamName, setTeamName] = useState<string>("");
-  const [createdEpoch, setCreatedEpoch] = useState<Date>(new Date(1649613004));
-  const [court, setCourt] = useState(0);
+  const [numPlayers, setNumPlayers] = useState<number>(team.players.length);
+  const [inThisTeam, setInThisTeam] = useState<boolean>(team.teamId === player.teamId);
+  const [teamName, setTeamName] = useState<string>(team.teamName);
+  const [createdEpoch, setCreatedEpoch] = useState<Date>(new Date(Number(team.created) * 1000));
+  const [court, setCourt] = useState(team.court);
 
   const postJoinTeam = async () => {
     const res = await fetch(BASE_API + "/team/join", {
@@ -41,8 +38,15 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({"teamId": teamId, "playerId": playerId})
+      body: JSON.stringify({"teamId": teamId, "playerId": player.playerId})
     });
+    const data = await res.json();
+    let playerCopy = player;    playerCopy.teamId = teamId;
+    let teamCopy: Team = team;
+    let teamPlayers: Player[] = team.players;
+    teamPlayers.push(playerCopy);
+    teamCopy.players = teamPlayers;
+    setTeam(teamCopy);
   }
 
   const postLeaveTeam = async () => {
@@ -51,12 +55,23 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({"playerId": playerId})
+      body: JSON.stringify({"playerId": player.playerId})
     });
+    let playerCopy = player;
+    playerCopy.teamId = undefined;
+    let teamCopy: Team = team;
+    let teamPlayers: Player[] = [];
+    team.players.map((teamPlayer) => {
+      if (teamPlayer.playerId !== player.playerId) {
+        teamPlayers.push(teamPlayer);
+      }
+    })
+    teamCopy.players = teamPlayers;
+    setTeam(teamCopy);
   }
 
   const handleJoinTeam = () => {
-    if (playerId.trim() !== "") {
+    if (player.playerId.trim() !== "") {
       setNumPlayers(numPlayers+1);
       setPlayerTeamId(teamId);
       setInThisTeam(true);
@@ -73,28 +88,28 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
     postLeaveTeam();
   }
 
-  const init = async () => {
-    const res = await fetch(BASE_API + "/team/get", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({"teamId": teamId})
-    });
-    const data = await res.json();
-    console.log(data);
-    setTeamName(data.teamName);
-    const createdNum = Number(data.created);
-    const miliseconds = createdNum * 1000;
-    const dateCreated = new Date(miliseconds)
-    setCreatedEpoch(dateCreated);
-    setNumPlayers(data.members);
-    setCourt(data.court);
-  }
+  // const init = async () => {
+  //   const res = await fetch(BASE_API + "/team/get", {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({"teamId": teamId})
+  //   });
+  //   const data = await res.json();
+  //   console.log(data);
+  //   setTeamName(data.teamName);
+  //   const createdNum = Number(data.created);
+  //   const miliseconds = createdNum * 1000;
+  //   const dateCreated = new Date(miliseconds)
+  //   setCreatedEpoch(dateCreated);
+  //   setNumPlayers(data.members);
+  //   setCourt(data.court);
+  // }
 
-  useEffect(() => {
-    init();
-  }, []);
+  // useEffect(() => {
+  //   init();
+  // }, []);
 
   const joinButton = () =>{
     return (
@@ -115,7 +130,7 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
         size="small" 
         variant="outlined"
       >
-        Join
+        {(team.players.length === 5) ? "Full" : "Join"}
       </Button>
     )
   }
@@ -135,7 +150,7 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
 
   return (
     <Item>
-      <Grid container spacing={2} columns={15}>
+      <Grid container spacing={2} columns={12}>
           <Grid item xs={3}>
             {teamName}
           </Grid>
@@ -146,12 +161,9 @@ const TeamRow: React.FC<Props> = ({ teamId, playerTeamId, setPlayerTeamId, BASE_
             {(createdEpoch.getHours() === 0) ? 12 : createdEpoch.getHours() % 12}:{String(createdEpoch.getMinutes()).padStart(2, '0')}{(createdEpoch.getHours() < 12) ? "am" : "pm"}
           </Grid>
           <Grid item xs={3}>
-            {(court > 0) ? court : "None"}
-          </Grid>
-          <Grid item xs={3}>
-            {(inThisTeam) ?
+            {(player.teamId === team.teamId) ?
               leaveButton() :
-              ((numPlayers < 5 && (playerTeamId === "")) ?
+              ((numPlayers < 5 && (player.teamId === undefined)) ?
                 joinButton() : cannotJoinButton())
             }
           </Grid>

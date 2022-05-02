@@ -4,38 +4,40 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import TeamRow from './TeamRow';
 //import styles from './TeamQueue.module.scss';
+import { BASE_API, Team, Player} from './constants';
 
 type Props = {
-  teamIds: Array<string>;
-  BASE_API: string;
-  playerId: string;
+  teams: Team[];
+  setTeam: (team: Team) => void;
+  player: Player;
+  setPlayer: (player: Player) => void;
 };
 
-const TeamQueue: React.FC<Props> = ({ teamIds, BASE_API, playerId }) => {
+const TeamQueue: React.FC<Props> = ({ teams, setTeam, player, setPlayer }) => {
 
-  const [playerTeamId, setPlayerTeamId] = useState<string>("");
 
-  const init = async () => {
-    if (playerId !== "") {
-      const res = await fetch(BASE_API + "/player/team", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({"playerId": playerId})
-      });
-      const data = await res.json();
-      setPlayerTeamId((data.teamId !== "None") ? data.teamId : "");
-    }  
-  }
+  const [playerTeamId, setPlayerTeamId] = useState<string | undefined>(player.teamId);
 
-  useEffect(() => {
-    init();
-  }, [playerId]);
+  // const init = async () => {
+  //   if (player !== null) {
+  //     const res = await fetch(BASE_API + "/player/team", {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({"playerId": player.playerId})
+  //     });
+  //     const data = await res.json();
+  //     setPlayerTeamId((data.teamId !== "None") ? data.teamId : "");
+  //   }
+  // }
 
+  // useEffect(() => {
+  //   init();
+  // }, [playerId]);
   return (
     <Box sx={{ width: '100' }}>
-      <Grid container spacing={2} columns={15}>
+      <Grid container spacing={2} columns={12}>
           <Grid item xs={3}>
             Name
           </Grid>
@@ -46,22 +48,20 @@ const TeamQueue: React.FC<Props> = ({ teamIds, BASE_API, playerId }) => {
               Time
           </Grid>
           <Grid item xs={3}>
-              Court
-          </Grid>
-          <Grid item xs={3}>
               Join
           </Grid>
       </Grid>
       <Stack spacing={2}>
-        {teamIds.map((teamId: string) => {
+        {teams.map((team: Team) => {
           return (
             <TeamRow 
-              key={teamId}
-              teamId={teamId}
-              BASE_API={BASE_API}
-              playerId={playerId}
-              playerTeamId={playerTeamId}
+              key={team.teamId}
+              team={team}
+              setTeam={setTeam}
+              teamId={team.teamId}
+              player={player}
               setPlayerTeamId={setPlayerTeamId}
+              initCourt={team.court}
             />
           )
         })}

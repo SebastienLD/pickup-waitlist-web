@@ -9,59 +9,47 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Grid from '@mui/material/Grid';
 //import styles from './CallNext.module.scss';
+import { BASE_API, Team, Player } from './constants';
 
 type Props = {
-  addTeamId: (newTeam: string) => void;
-  BASE_API: string;
+  player: Player;
+  addTeam: (team: Team) => void;
+  court: number;
+  setPlayer: (player: Player) => void;
 };
 
-const CallNext: React.FC<Props> = ({ addTeamId, BASE_API }) => {
+const CallNext: React.FC<Props> = ({ addTeam, court, player, setPlayer }) => {
   
-  const [teamName, setTeamName] = useState("");
-  const [court, setCourt] = useState(0);
-  const handleButtonPress = async (teamName: string) => {
-
-    let teamId = undefined;
-    if (teamName.trim() !== "" && court > 0) {
-      setTeamName(""); 
-      const res = await fetch(BASE_API + "/team/create", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({"teamName": teamName, "created": (Date.now()/1000)})
-      });
-      const data = await res.json();
-      addTeamId(data.teamId);
-      teamId = data.teamId;
-    } else if (court < 1) {
-      alert("Select your court!");
-    } else {
-      alert("You must enter a valid team name!");
-    }
-
-    if (court > 0 && teamId !== undefined) {
-      const res = await fetch(BASE_API + "/court/join", {
-      method: 'POST',
+  const handleButtonPress = async () => {
+    const res = await fetch(BASE_API + "/team/create", {
+      method: 'POST', 
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({"teamId": teamId, "court": court})
-      });
-      const data = await res.json();
-    }
-   
+      body: JSON.stringify({"created": (Date.now()/1000), "playerId": player.playerId, "court": court})
+    });
+    const data: Team = await res.json();
+    addTeam({
+      "teamId": data.teamId,
+      "court": court,
+      "created": data.created,
+      "teamName": data.teamName,
+      "players": [player],
+    });
+    let copyPlayer = player;
+    copyPlayer.teamId = data.teamId; 
+    setPlayer(copyPlayer)
   }
 
   return (
     <Box sx={{ width: '100' }}> 
-    <Grid container spacing={2} columns={15}>
+    {/* <Grid container spacing={2} columns={15}>
       <Grid item xs={6}>
          <TextField 
             variant='outlined'
             size="small"
             value={teamName}
-            placeholder="Enter New Team Name"
+            placeholder="Team Name"
             onChange={(event) => setTeamName(event.target.value)}
           />
       </Grid>
@@ -82,13 +70,12 @@ const CallNext: React.FC<Props> = ({ addTeamId, BASE_API }) => {
             </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={5}>
+      <Grid item xs={5}> */}
         <Button 
           variant="contained"
-          onClick={() => handleButtonPress(teamName)}  
-        >Add</Button>
-      </Grid>
-      </Grid>
+          onClick={handleButtonPress}
+          disabled={(player.teamId !== undefined)} 
+        >Call Next!</Button>
     </Box>
   );
 };

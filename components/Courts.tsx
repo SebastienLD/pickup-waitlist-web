@@ -1,17 +1,24 @@
-import { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
+import { useState, useEffect, SyntheticEvent } from 'react';
 import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import TeamQueue from './TeamQueue';
+import CallNext from './CallNext';
+import { BASE_API, Team, Player } from './constants';
+import CourtStatus from './CourtStatus';
+
 //import styles from './Courts.module.scss';
 
 type Props = {
-  teamIds: Array<string>;
-  BASE_API: string;
-  courtOneTeams: Array<string>;
-  courtTwoTeams: Array<string>;
-  courtThreeTeams: Array<string>;
-  addTeamToCourt: (court: number, teamId: string) => void;
+  courtView: number;
+  setCourtView: (courtView: number) => void;
+  teams: Team[];
+  setTeams: (team: Team[]) => void;
+  player: Player;
+  setPlayer: (player: Player) => void;
+  addTeam: (newTeamId: string, teamCourt: number) => void;
 };
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -23,65 +30,144 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const Courts: React.FC<Props> = ({ teamIds, BASE_API, courtOneTeams, courtTwoTeams, courtThreeTeams, addTeamToCourt }) => {
+const Courts: React.FC<Props> = ({ courtView, setCourtView, teams, setTeams, player, setPlayer, addTeam }) => {
 
-  interface Team {
-    name: string;
-    numPlayers: number;
+  const getTeamsOnCourt = (court: number, teams: Team[]) => {
+    let teamsOnCourt: Team[] = [];
+    let sortedTeams = teams.sort((a: Team, b: Team) => {
+      return (Number(a.created) - Number(b.created))
+    })
+    sortedTeams.map((team: Team) => {
+      if (team.court === court) {
+        teamsOnCourt.push(team);
+      }
+    })
+    return teamsOnCourt;
+  }
+  const handleChange = (event: SyntheticEvent, newValue: number) => {
+    setCourtView(newValue);
+  };
+
+  // const getCourt = async (court: number) => {
+  //   const res = await fetch(BASE_API + "/court/get", {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({"court": court}),
+  //   });
+  //   const data = await res.json();
+  //   data.teamIds.map((teamId: TeamId) => {
+  //     addTeamToCourt(court, teamId.id);
+  //   });
+  // }
+
+  interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
   }
 
-  interface TeamId {
-    id: string;
+  function TabPanel(props: TabPanelProps) {
+    const { children, value, index, ...other } = props;
+  
+    return (
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+      >
+        {value === index && (
+          <Box style={{paddingTop: ".8em"}}>
+           {children}
+          </Box>
+        )}
+      </div>
+    );
   }
 
-  const getCourt = async (court: number) => {
-    const res = await fetch(BASE_API + "/court/get", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({"court": court}),
-    });
-    const data = await res.json();
-    data.teamIds.map((teamId: TeamId) => {
-      addTeamToCourt(court, teamId.id);
-    });
+  const setTeam = (changedTeam: Team) => {
+    let teamsCopy: Team[] = [];
+    let newTeam = true;
+    teams.map((team: Team) => {
+      if (team.teamId === changedTeam.teamId) {
+        if (changedTeam.players.length > 0) {
+          teamsCopy.push(changedTeam);
+        }
+        newTeam = false;
+      } else {
+        teamsCopy.push(team);
+      }
+    })
+    if (newTeam) {
+      teamsCopy.push(changedTeam);
+    }
+    setTeams(teamsCopy);
   }
-
-  useEffect(() => {
-    getCourt(1);
-    getCourt(2);
-    getCourt(3);
-  }, []);
 
   return (
-      <Grid container spacing={2} columns={12}>
-          
-          <Grid item xs={4}>
-            <Item>
-            <Grid>{courtOneTeams.length > 0 ? courtOneTeams[0] : "No Team"} vs.</Grid>
-            <Grid>{courtOneTeams.length > 1 ? courtOneTeams[1] : "No Team"}</Grid>
-            </Item>
-          </Grid>
-          
-         
-          <Grid item xs={4}> 
-            <Item>
-            <Grid>{courtTwoTeams.length > 0 ? courtTwoTeams[0] : "No Team"} vs.</Grid>
-            <Grid>{courtTwoTeams.length > 1 ? courtTwoTeams[1] : "No Team"}</Grid>
-            </Item>
-          </Grid>
-         
-        
-          <Grid item xs={4}>
-            <Item>
-            <Grid>{courtThreeTeams.length > 0 ? courtThreeTeams[0] : "No Team"} vs.</Grid>
-            <Grid>{courtThreeTeams.length > 1 ? courtThreeTeams[1] : "No Team"}</Grid>
-            </Item>
-          </Grid>
-         
-    </Grid>
+    <Box sx={{ width: '100%' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs value={courtView} onChange={handleChange} aria-label="basic tabs example">
+          <Tab label="Court 1"/>
+          <Tab label="Court 2"/>
+          <Tab label="Court 3"/>
+        </Tabs>
+      </Box>
+      <TabPanel value={courtView} index={0}>
+        <CourtStatus
+          setTeam={setTeam}
+          player={player}
+          setPlayer={setPlayer}
+          teams={getTeamsOnCourt(1, teams)}
+        />
+        <TeamQueue
+          teams={getTeamsOnCourt(1, teams)}
+          setTeam={setTeam}
+          player={player}
+          setPlayer={setPlayer}
+        />
+        <div style={{marginTop: "1em"}}>
+          <CallNext addTeam={setTeam} player={player} setPlayer={setPlayer} court={1}/>
+        </div>      </TabPanel>
+      <TabPanel value={courtView} index={1}>
+        <CourtStatus
+          setTeam={setTeam}
+          teams={getTeamsOnCourt(2, teams)}
+          player={player}
+          setPlayer={setPlayer}
+        />
+        <TeamQueue
+          teams={getTeamsOnCourt(2, teams)}
+          setTeam={setTeam}
+          player={player}
+          setPlayer={setPlayer}
+        />
+        <div style={{marginTop: "1em"}}>
+          <CallNext addTeam={setTeam} player={player} setPlayer={setPlayer} court={2}/>
+        </div>      </TabPanel>
+      <TabPanel value={courtView} index={2}>
+        <CourtStatus
+          setTeam={setTeam}
+          teams={getTeamsOnCourt(3, teams)}
+          player={player}
+          setPlayer={setPlayer}
+        />
+        <TeamQueue
+          teams={getTeamsOnCourt(3, teams)}
+          setTeam={setTeam}
+          player={player}
+          setPlayer={setPlayer}
+        />
+        <div style={{marginTop: "1em"}}>
+          <CallNext addTeam={setTeam} player={player} setPlayer={setPlayer} court={3}/>
+        </div>
+      </TabPanel>
+  </Box>
   )
 };
 
 export default Courts;
+
