@@ -1,18 +1,9 @@
-import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Grid from '@mui/material/Grid';
-//import styles from './CallNext.module.scss';
 import { BASE_API, Team, Player } from './constants';
 
 type Props = {
-  player: Player;
+  player: Player | null;
   addTeam: (team: Team) => void;
   court: number;
   setPlayer: (player: Player) => void;
@@ -21,6 +12,8 @@ type Props = {
 const CallNext: React.FC<Props> = ({ addTeam, court, player, setPlayer }) => {
   
   const handleButtonPress = async () => {
+    if (player === null)
+      return;
     const res = await fetch(BASE_API + "/team/create", {
       method: 'POST', 
       headers: {
@@ -43,38 +36,10 @@ const CallNext: React.FC<Props> = ({ addTeam, court, player, setPlayer }) => {
 
   return (
     <Box sx={{ width: '100' }}> 
-    {/* <Grid container spacing={2} columns={15}>
-      <Grid item xs={6}>
-         <TextField 
-            variant='outlined'
-            size="small"
-            value={teamName}
-            placeholder="Team Name"
-            onChange={(event) => setTeamName(event.target.value)}
-          />
-      </Grid>
-      <Grid item xs={4}>
-        <FormControl sx={{ minWidth: 90 }} size="small">
-          <InputLabel id="demo-simple-select-label">Court</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={court}
-              label="Court"
-              onChange={(event) => setCourt(event.target.value as number)}
-            >
-              <MenuItem value={0}>Select</MenuItem>
-              <MenuItem value={1}>One</MenuItem>
-              <MenuItem value={2}>Two</MenuItem>
-              <MenuItem value={3}>Three</MenuItem>
-            </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={5}> */}
         <Button 
           variant="contained"
           onClick={handleButtonPress}
-          disabled={(player.teamId !== undefined)} 
+          disabled={(player === null) || (player.teamId !== undefined)} 
         >Call Next!</Button>
     </Box>
   );

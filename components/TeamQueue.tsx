@@ -3,38 +3,17 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import TeamRow from './TeamRow';
-//import styles from './TeamQueue.module.scss';
 import { BASE_API, Team, Player} from './constants';
 
 type Props = {
   teams: Team[];
   setTeam: (team: Team) => void;
-  player: Player;
+  player: Player | null;
   setPlayer: (player: Player) => void;
 };
 
 const TeamQueue: React.FC<Props> = ({ teams, setTeam, player, setPlayer }) => {
 
-
-  const [playerTeamId, setPlayerTeamId] = useState<string | undefined>(player.teamId);
-
-  // const init = async () => {
-  //   if (player !== null) {
-  //     const res = await fetch(BASE_API + "/player/team", {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({"playerId": player.playerId})
-  //     });
-  //     const data = await res.json();
-  //     setPlayerTeamId((data.teamId !== "None") ? data.teamId : "");
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   init();
-  // }, [playerId]);
   return (
     <Box sx={{ width: '100' }}>
       <Grid container spacing={2} columns={12}>
@@ -60,7 +39,6 @@ const TeamQueue: React.FC<Props> = ({ teams, setTeam, player, setPlayer }) => {
               setTeam={setTeam}
               teamId={team.teamId}
               player={player}
-              setPlayerTeamId={setPlayerTeamId}
               initCourt={team.court}
             />
           )

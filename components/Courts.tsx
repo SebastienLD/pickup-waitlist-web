@@ -1,4 +1,4 @@
-import { useState, useEffect, SyntheticEvent } from 'react';
+import { SyntheticEvent } from 'react';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import Tabs from '@mui/material/Tabs';
@@ -6,19 +6,17 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import TeamQueue from './TeamQueue';
 import CallNext from './CallNext';
-import { BASE_API, Team, Player } from './constants';
+import { Team, Player } from './constants';
 import CourtStatus from './CourtStatus';
 
-//import styles from './Courts.module.scss';
 
 type Props = {
   courtView: number;
   setCourtView: (courtView: number) => void;
   teams: Team[];
   setTeams: (team: Team[]) => void;
-  player: Player;
+  player: Player | null;
   setPlayer: (player: Player) => void;
-  addTeam: (newTeamId: string, teamCourt: number) => void;
 };
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -30,7 +28,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const Courts: React.FC<Props> = ({ courtView, setCourtView, teams, setTeams, player, setPlayer, addTeam }) => {
+const Courts: React.FC<Props> = ({ courtView, setCourtView, teams, setTeams, player, setPlayer }) => {
 
   const getTeamsOnCourt = (court: number, teams: Team[]) => {
     let teamsOnCourt: Team[] = [];
@@ -47,20 +45,6 @@ const Courts: React.FC<Props> = ({ courtView, setCourtView, teams, setTeams, pla
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setCourtView(newValue);
   };
-
-  // const getCourt = async (court: number) => {
-  //   const res = await fetch(BASE_API + "/court/get", {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({"court": court}),
-  //   });
-  //   const data = await res.json();
-  //   data.teamIds.map((teamId: TeamId) => {
-  //     addTeamToCourt(court, teamId.id);
-  //   });
-  // }
 
   interface TabPanelProps {
     children?: React.ReactNode;

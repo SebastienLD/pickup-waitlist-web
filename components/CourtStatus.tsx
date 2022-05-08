@@ -16,7 +16,7 @@ import TextField from '@mui/material/TextField';
 type Props = {
   teams: Team[];
   setTeam: (team: Team) => void;
-  player: Player;
+  player: Player | null;
   setPlayer: (player: Player) => void;
   addTeam?: (newTeamId: string, teamCourt: number) => void;
 };
@@ -56,7 +56,7 @@ const CourtStatus: React.FC<Props> = ({  teams, setTeam, player, setPlayer, addT
 
   const handleLoose = (team: Team) => {
     team.players.map((teamPlayer: Player) => {
-      if (teamPlayer.playerId === player.playerId) {
+      if (player !== null && teamPlayer.playerId === player.playerId) {
         let copyPlayer = player;
         copyPlayer.teamId = undefined;
         setPlayer(copyPlayer);

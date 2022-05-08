@@ -1,10 +1,9 @@
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
-import cookie from "cookie";
 
-// export const BASE_API = "http://localhost:5000";
-export const BASE_API = "http://172.20.10.2:5000";
-// export const BASE_API = "http://ec2-54-67-109-84.us-west-1.compute.amazonaws.com:5000";
+//export const BASE_API = "http://localhost:5000";
+//export const BASE_API = "http://172.20.10.2:5000";
+export const BASE_API = "http://ec2-54-67-109-84.us-west-1.compute.amazonaws.com";
 
 
 export interface Player {
@@ -30,10 +29,6 @@ export const Item = styled(Paper)(({ theme }) => ({
     // textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
-
-export const parseCookies = (req: any) => {
-    return cookie.parse(req ? req.headers.cookie || "" : document.cookie);
-}
 
 export const modalStyle = {
     position: 'absolute' as 'absolute',
