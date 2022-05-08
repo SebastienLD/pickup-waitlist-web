@@ -3,10 +3,12 @@ import type { NextPage } from 'next';
 import styles from '../styles/Home.module.css';
 import GetNameModal from '../components/GetNameModal';
 import Courts from '../components/Courts';
-import Cookie from "js-cookie";
-import cookie from "cookie";
+
 import EditIcon from '@mui/icons-material/Edit';
 import { BASE_API, Team, Player, Item, getWaitTime } from '../components/constants';
+
+const Cookie = require("js-cookie");
+const cookie = require("cookie");
 
 const parseCookies = (req: any) => {
   return cookie.parse(req ? req.headers.cookie || "" : document.cookie);
