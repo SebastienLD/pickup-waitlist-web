@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 
 //export const BASE_API = "http://localhost:5000";
 //export const BASE_API = "http://172.20.10.2:5000";
-export const BASE_API = "http://ec2-54-67-109-84.us-west-1.compute.amazonaws.com";
+export const BASE_API = "https://ec2-54-67-109-84.us-west-1.compute.amazonaws.com";
 
 
 export interface Player {
