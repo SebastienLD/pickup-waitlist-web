@@ -14,7 +14,12 @@ const parseCookies = (req: any) => {
   return cookie.parse(req ? req.headers.cookie || "" : document.cookie);
 }
 
-const Home: NextPage = ({ initialPlayerId, initialCourtView }) => {
+type Props = {
+  initialPlayerId?: string;
+  initialCourtView?: number; 
+};
+
+const Home: NextPage<Props> = ({ initialPlayerId, initialCourtView }) => {
 
   
   const [nameModalOpen, setNameModalOpen] = useState<boolean>(false);
@@ -75,7 +80,7 @@ const Home: NextPage = ({ initialPlayerId, initialCourtView }) => {
       Cookie.set("playerId", player.playerId);
       Cookie.set("courtView", courtView)
     }
-  }, [player?.playerId, courtView]);
+  }, [player, courtView]);
 
 
 
@@ -104,15 +109,14 @@ const Home: NextPage = ({ initialPlayerId, initialCourtView }) => {
             setPlayer={setPlayer}
           />
       </div>
-      
     </div>
   )
 };
 
-Home.getInitialProps = ({ req }) => {
-  const cookies = parseCookies(req);
+Home.getInitialProps = async ({ req }) => {
+  const cookies = await parseCookies(req);
   return {
-    initialPlayerId: cookies.playerId,
+    initialPlayerId: String(cookies.playerId),
     initialCourtView: Number(cookies.courtView)
   };
 };
