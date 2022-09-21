@@ -1,9 +1,10 @@
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 
-//export const BASE_API = "http://localhost:5000";
+// export const BASE_API = "http://localhost:5000";
 //export const BASE_API = "http://172.20.10.2:5000";
-export const BASE_API = "http://ec2-54-241-202-168.us-west-1.compute.amazonaws.com";
+// export const BASE_API = "http://ec2-54-241-202-168.us-west-1.compute.amazonaws.com";
+export const BASE_API = "https://pickup-waitlist-app.herokuapp.com/"
 
 
 export interface Player {
