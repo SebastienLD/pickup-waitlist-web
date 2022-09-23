@@ -10,6 +10,7 @@ export const BASE_API = "https://pickup-waitlist-app.herokuapp.com/"
 export interface Player {
     playerId: string;
     name: string;
+    email: string;
     teamId?: string;
     created: string;
 }
@@ -36,10 +37,12 @@ export const modalStyle = {
     top: '20%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    display: 'flex-wrap',
+    justifyContent: 'center',
     bgcolor: 'background.paper',
     boxShadow: 24,
-    p: 4,
+    borderRadius: "5px",
+    p: 2,
   };
 
 export const getWaitTime = (teams: Team[]) => {

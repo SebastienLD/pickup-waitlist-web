@@ -7,6 +7,7 @@ import Banner from '../components/Banner';
 
 import EditIcon from '@mui/icons-material/Edit';
 import { BASE_API, Team, Player, Item, getWaitTime } from '../components/constants';
+import { Email } from '@mui/icons-material';
 
 const Cookie = require("js-cookie");
 const cookie = require("cookie");
@@ -28,19 +29,24 @@ const Home: NextPage<Props> = ({ initialPlayerId, initialCourtView }) => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [courtView, setCourtView] = useState(initialCourtView ? initialCourtView : 0);
 
-  const createPlayer = async (name: string) => {
+  const createOrModifyPlayer = async (name: string, email: string) => {
     const res = await fetch(BASE_API + "/player/create", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({"playerName": name, "created": Date.now()/1000})
+      body: JSON.stringify({
+        "playerName": name,
+        "playerEmail": email,
+        "created": Date.now()/1000
+      })
     });
 
     const data = await res.json();
     setPlayer({
       "playerId": data.playerId,
       "name": name,
+      "email": email,
       "created": data.created,
     })
   };
@@ -97,7 +103,7 @@ const Home: NextPage<Props> = ({ initialPlayerId, initialCourtView }) => {
       <GetNameModal
         open={nameModalOpen || !initialPlayerId || !player}
         handleOpenChange={setNameModalOpen}
-        handleChangeName={createPlayer}
+        handleUserSubmission={createOrModifyPlayer}
       />
     
       <div className={styles.mb1}>
