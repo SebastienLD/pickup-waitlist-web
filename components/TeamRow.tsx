@@ -4,6 +4,7 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import { BASE_API, Team, Player } from './constants';
+import Tooltip from '@mui/material/Tooltip';
 
 type Props = {
   team: Team;
@@ -27,6 +28,7 @@ const TeamRow: React.FC<Props> = ({ team, setTeam, teamId, player, initCourt }) 
   const [numPlayers, setNumPlayers] = useState<number>(team.players.length);
   const [teamName, setTeamName] = useState<string>(team.teamName);
   const [createdEpoch, setCreatedEpoch] = useState<Date>(new Date(Number(team.created) * 1000));
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const postJoinTeam = async () => {
     if (player === null) 
@@ -123,6 +125,18 @@ const TeamRow: React.FC<Props> = ({ team, setTeam, teamId, player, initCourt }) 
     )
   }
 
+  const getPlayerListForToolTip = () => {
+    let playerList: string = "Players:\n";
+    team.players.map((player) => {
+      playerList += `${player.name}\n`;
+    })
+    return (
+      <div style={{whiteSpace: 'pre-line'}}>
+        {playerList}
+      </div>
+    );
+  };
+
   return (
     <Item>
       <Grid container spacing={2} columns={12}>
@@ -130,7 +144,14 @@ const TeamRow: React.FC<Props> = ({ team, setTeam, teamId, player, initCourt }) 
             {teamName}
           </Grid>
           <Grid item xs={3}>
-            {numPlayers}
+            <Tooltip 
+              open={showTooltip}        
+              onMouseEnter={() => { setShowTooltip(true) }}
+              onMouseLeave={() => { setShowTooltip(false) }}
+              placement="top-start"
+              title={getPlayerListForToolTip()}>
+              <div>{numPlayers}</div>
+            </Tooltip>
           </Grid>
           <Grid item xs={3}>
             {(createdEpoch.getHours() === 0) ? 12 : createdEpoch.getHours() % 12}:{String(createdEpoch.getMinutes()).padStart(2, '0')}{(createdEpoch.getHours() < 12) ? "am" : "pm"}

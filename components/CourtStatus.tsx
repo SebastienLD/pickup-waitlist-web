@@ -1,17 +1,9 @@
-import { useState, useEffect, SyntheticEvent } from 'react';
-import Paper from '@mui/material/Paper';
-import { styled } from '@mui/material/styles';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import TeamQueue from './TeamQueue';
-import CallNext from './CallNext';
 import { BASE_API, Team, Player, Item, modalStyle } from './constants';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
-import TextField from '@mui/material/TextField';
 
 type Props = {
   teams: Team[];
