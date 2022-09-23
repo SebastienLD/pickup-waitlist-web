@@ -3,6 +3,7 @@ import type { NextPage } from 'next';
 import styles from '../styles/Home.module.css';
 import GetNameModal from '../components/GetNameModal';
 import Courts from '../components/Courts';
+import Banner from '../components/Banner';
 
 import EditIcon from '@mui/icons-material/Edit';
 import { BASE_API, Team, Player, Item, getWaitTime } from '../components/constants';
@@ -86,12 +87,12 @@ const Home: NextPage<Props> = ({ initialPlayerId, initialCourtView }) => {
 
   return (
     <div className={styles.container}>
-      <Item>
-         <div className={styles.waitlist}>
-           {(player !== null) ? "Hi, " + player.name : ""} <EditIcon fontSize="small" onClick={() => setNameModalOpen(true)}/>
-           {` Wait Time ~ ${getWaitTime(teams)} minutes`}
-          </div>
-      </Item>
+
+      <Banner
+        player={player}
+        teams={teams}
+        setNameModalOpen={setNameModalOpen}
+      />
       
       <GetNameModal
         open={nameModalOpen || !initialPlayerId || !player}
