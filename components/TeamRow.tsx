@@ -5,6 +5,10 @@ import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import { BASE_API, Team, Player } from './constants';
 import Tooltip from '@mui/material/Tooltip';
+import * as timeDelta from 'time-delta';
+import enLocale from 'time-delta/locales/en';
+
+timeDelta.addLocale(enLocale);
 
 type Props = {
   team: Team;
@@ -125,6 +129,17 @@ const TeamRow: React.FC<Props> = ({ team, setTeam, teamId, player, initCourt }) 
     )
   }
 
+  const getTimeSince = (date: Date) => {
+    const now = new Date(Date.now());
+    console.log("First", now);
+    console.log("Second", date);
+    const timeDeltaInstance = timeDelta.create({
+      locale: 'en',
+    })
+    const delta = Math.abs(now.getTime() - date.getTime());
+    return `${Math.floor(delta / 60000)} minutes`;
+  }
+
   const getPlayerListForToolTip = () => {
     let playerList: string = "Players:\n";
     team.players.map((player) => {
@@ -154,7 +169,9 @@ const TeamRow: React.FC<Props> = ({ team, setTeam, teamId, player, initCourt }) 
             </Tooltip>
           </Grid>
           <Grid item xs={3}>
-            {(createdEpoch.getHours() === 0) ? 12 : createdEpoch.getHours() % 12}:{String(createdEpoch.getMinutes()).padStart(2, '0')}{(createdEpoch.getHours() < 12) ? "am" : "pm"}
+            {/* {(createdEpoch.getHours() === 0) ?
+              12 : createdEpoch.getHours() % 12}:{String(createdEpoch.getMinutes()).padStart(2, '0')}{(createdEpoch.getHours() < 12) ? "am" :"pm"} */}
+            {getTimeSince(createdEpoch)}
           </Grid>
           <Grid item xs={3}>
             {(player !== null) ? 

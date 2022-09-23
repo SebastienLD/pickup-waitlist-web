@@ -20,6 +20,7 @@
     "react": "18.0.0",
     "react-dom": "18.0.0",
     "react-redux": "^7.2.8",
+    "time-delta": "^1.0.0",
     "yarn": "^1.22.18"
   },
   "devDependencies": {
