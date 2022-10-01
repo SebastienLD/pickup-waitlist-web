@@ -5,8 +5,6 @@ import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import { BASE_API, Team, Player } from './constants';
 import Tooltip from '@mui/material/Tooltip';
-import * as timeDelta from 'time-delta';
-import enLocale from 'time-delta/locales/en';
 
 timeDelta.addLocale(enLocale);
 
@@ -133,9 +131,6 @@ const TeamRow: React.FC<Props> = ({ team, setTeam, teamId, player, initCourt }) 
     const now = new Date(Date.now());
     console.log("First", now);
     console.log("Second", date);
-    const timeDeltaInstance = timeDelta.create({
-      locale: 'en',
-    })
     const delta = Math.abs(now.getTime() - date.getTime());
     return `${Math.floor(delta / 60000)} minutes`;
   }
